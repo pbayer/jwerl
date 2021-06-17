@@ -3,8 +3,24 @@
 
 -export([sign/3, verify/4]).
 
-sign(ShaBits, Key, Data) ->
-  crypto:mac(hmac, algo(ShaBits), Key, Data).
+-ifdef(OTP_RELEASE).
+  -if(?OTP_RELEASE >= 24).
+
+    sign(ShaBits, Key, Data) ->
+      crypto:mac(hmac, algo(ShaBits), Key, Data).
+
+  -elif(?OTP_RELEASE >= 21).
+
+    sign(ShaBits, Key, Data) ->
+      crypto:hmac(algo(ShaBits), Key, Data).
+
+  -endif.
+-else.
+
+  sign(ShaBits, Key, Data) ->
+    crypto:hmac(algo(ShaBits), Key, Data).
+
+-endif.
 
 verify(ShaBits, Key, Data, Signature) ->
   Signature == sign(ShaBits, Key, Data).
